@@ -138,6 +138,32 @@ An architecture that scales well for a particular application is built around as
 ------------------------------------------------------------------------------------------------------------------------
 
 # Maintainability
+It is well known that the majority of the cost of software is not in its initial development, but in its ongoing maintenance—fixing bugs, keeping its systems operational, investigating failures, adapting it to new platforms, modifying it for new use cases, repaying technical debt, and adding new features.
+
+we can and should design software in such a way that it will hopefully minimize pain during maintenance, and thus avoid creating legacy software ourselves. To this end, we will pay particular attention to three design principles for software systems:
+
+### Operability
+Make it easy for operations teams to keep the system running smoothly.
+
+### Simplicity
+Make it easy for new engineers to understand the system, by removing as much complexity as possible from the system. (Note this is not the same as simplicity of the user interface.)
+
+### Evolvability
+Make it easy for engineers to make changes to the system in the future, adapting it for unanticipated use cases as requirements change. Also known as extensibility, modifiability, or plasticity.
+
+
+#### Operability: Making Life Easy for Operations
+#### Simplicity: Managing Complexity
+#### Evolvability: Making Change Easy
+
+----------------------------------------------------------------------------------------------------------------------
+
+Reliability means making systems work correctly, even when faults occur. 
+
+Scalability means having strategies for keeping performance good, even when load increases.
+
+Maintainability has many facets, but in essence it’s about making life better for the engineering and operations teams who need to work with the system.
+
 
 
 
