@@ -58,7 +58,7 @@ Over time, many different people will work on the system (engineering and operat
 
 -------------------------------------------------------------------------------------------------------------
 
-### Reliability
+# Reliability
 
 ***The things that can go wrong are called faults, and systems that anticipate faults and can cope with them are called fault-tolerant or resilient.****
 
@@ -91,4 +91,9 @@ There is no quick solution to the problem of systematic faults in software. Lots
 ### Human Errors
 ------------------------------------------------------------------------------------------------------------------------
 
+# Scalability
+
+Even if a system is working reliably today, that doesn’t mean it will necessarily work reliably in the future. ***One common reason for degradation is increased load: perhaps the system has grown from 10,000 concurrent users to 100,000 concurrent users, or from 1 million to 10 million. Perhaps it is processing much larger volumes of data than it did before.***
+
+***Scalability is the term we use to describe a system’s ability to cope with increased load.*** Note, however, that it is not a one-dimensional label that we can attach to a system: it is meaningless to say “X is scalable” or “Y doesn’t scale.” ***Rather, discussing scalability means considering questions like “If the system grows in a particular way, what are our options for coping with the growth?” and “How can we add computing resources to handle the additional load?”***
 
