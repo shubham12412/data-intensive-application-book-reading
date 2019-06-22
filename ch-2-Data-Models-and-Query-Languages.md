@@ -122,3 +122,93 @@ Well-known algorithms can operate on these graphs: for example, car navigation s
 
 In the examples just given, all the vertices in a graph represent the same kind of thing (people, web pages, or road junctions, respectively). However, graphs are not limited to such homogeneous data: an equally powerful use of graphs is to provide a consistent way of storing completely different types of objects in a single datastore. For example, Facebook maintains a single graph with many different types of vertices and edges: vertices represent people, locations, events, checkins, and comments made by users; edges indicate which people are friends with each other, which checkin happened in which location, who commented on which post, who attended which event, and so on [35].
 
+***There are several different, but related, ways of structuring and querying data in graphs. In this section we will discuss the property graph model (implemented by Neo4j, Titan, and InfiniteGraph) and the triple-store model (implemented by Datomic, AllegroGraph, and others)***. We will look at three declarative query languages for graphs: Cypher, SPARQL, and Datalog. Similar concepts appear in other graph query languages such as Gremlin [36] and graph processing frameworks like Pregel (see Chapter 10).
+
+
+
+## Property Graphs
+
+In the property graph model, each vertex consists of:
+
+1) A unique identifier
+2) A set of outgoing edges
+3) A set of incoming edges
+4) A collection of properties (key-value pairs)
+
+Each edge consists of:
+
+1) A unique identifier
+2) The vertex at which the edge starts (the tail vertex)
+3) The vertex at which the edge ends (the head vertex)
+4) A label to describe the kind of relationship between the two vertices
+5) A collection of properties (key-value pairs)
+
+You can think of a graph store as consisting of two relational tables, one for vertices and one for edges, as shown in Example 2-2 (this schema uses the PostgreSQL json datatype to store the properties of each vertex or edge). The head and tail vertex are stored for each edge; if you want the set of incoming or outgoing edges for a vertex, you can query the edges table by head_vertex or tail_vertex, respectively.
+
+Representing a property graph using a relational schema
+
+`
+CREATE TABLE vertices (
+    vertex_id   integer PRIMARY KEY,
+    properties  json
+);
+
+CREATE TABLE edges (
+    edge_id     integer PRIMARY KEY,
+    tail_vertex integer REFERENCES vertices (vertex_id),
+    head_vertex integer REFERENCES vertices (vertex_id),
+    label       text,
+    properties  json
+);
+
+CREATE INDEX edges_tails ON edges (tail_vertex);
+CREATE INDEX edges_heads ON edges (head_vertex);
+`
+
+A subset of the data in Figure 2-5, represented as a Cypher query
+
+`
+CREATE
+  (NAmerica:Location {name:'North America', type:'continent'}),
+  (USA:Location      {name:'United States', type:'country'  }),
+  (Idaho:Location    {name:'Idaho',         type:'state'    }),
+  (Lucy:Person       {name:'Lucy' }),
+  (Idaho) -[:WITHIN]->  (USA)  -[:WITHIN]-> (NAmerica),
+  (Lucy)  -[:BORN_IN]-> (Idaho)
+`
+
+Cypher query to find people who emigrated from the US to Europe
+
+`
+MATCH
+  (person) -[:BORN_IN]->  () -[:WITHIN*0..]-> (us:Location {name:'United States'}),
+  (person) -[:LIVES_IN]-> () -[:WITHIN*0..]-> (eu:Location {name:'Europe'})
+RETURN person.name
+`
+
+`
+he query can be read as follows:
+
+Find any vertex (call it person) that meets both of the following conditions:
+
+1. person has an outgoing BORN_IN edge to some vertex. From that vertex, you can follow a chain of outgoing WITHIN edges until eventually you reach a vertex of type Location, whose name property is equal to "United States".
+
+2. That same person vertex also has an outgoing LIVES_IN edge. Following that edge, and then a chain of outgoing WITHIN edges, you eventually reach a vertex of type Location, whose name property is equal to "Europe".
+
+For each such person vertex, return the name property.
+`
+
+----------------------------------------------------------------summary-----------------------------------------------
+
+Historically, data started out being represented as one big tree (the hierarchical model), but that wasn’t good for representing many-to-many relationships, so the relational model was invented to solve that problem. More recently, developers found that some applications don’t fit well in the relational model either. New nonrelational “NoSQL” datastores have diverged in two main directions:
+
+1) Document databases target use cases where data comes in self-contained documents and relationships between one document and another are rare.
+
+2) Graph databases go in the opposite direction, targeting use cases where anything is potentially related to everything.
+
+All three models (document, relational, and graph) are widely used today, and each is good in its respective domain. One model can be emulated in terms of another model—for example, graph data can be represented in a relational database—but the result is often awkward. That’s why we have different systems for different purposes, not a single one-size-fits-all solution.
+
+One thing that document and graph databases have in common is that they typically don’t enforce a schema for the data they store, which can make it easier to adapt applications to changing requirements. However, your application most likely still assumes that data has a certain structure; it’s just a question of whether the schema is explicit (enforced on write) or implicit (assumed on read).
+
+Each data model comes with its own query language or framework, and we discussed several examples: SQL, MapReduce, MongoDB’s aggregation pipeline, Cypher, SPARQL, and Datalog. We also touched on CSS and XSL/XPath, which aren’t database query languages but have interesting parallels.
+
